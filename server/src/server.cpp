@@ -5,4 +5,8 @@
 #include <iostream>
 
 // custom includes
-#include "../../shared/slinked_list.hpp"
+
+
+// MAGIC NUMBERS
+// maximum number of clients allowed
+#define MAX_CLIENT_COUNT 50
