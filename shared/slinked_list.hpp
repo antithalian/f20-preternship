@@ -5,7 +5,7 @@
 #ifndef SLINKED_H
 #define SLINKED_H
 
-#include <cstdlib>
+#include <cstddef>
 
 template<class T> class slinked_list {
 
@@ -166,7 +166,7 @@ template<class T> class slinked_list {
             else if (target == head->data) {
                 temp = head;
                 head = head->next;
-                free(temp);
+                delete(temp);
                 return true;
             }
             // handle other options by traversing
@@ -185,7 +185,7 @@ template<class T> class slinked_list {
                     // delete node with target value
                     temp = curr;
                     prev->next = curr->next;
-                    free(temp);
+                    delete(temp);
                     return true;
                 }
                 else {
@@ -206,7 +206,7 @@ template<class T> class slinked_list {
             else {
                 node* temp = head;
                 head = head->next;
-                free(temp);
+                delete(temp);
                 return true;
             }
         }
@@ -242,9 +242,6 @@ template<class T> class slinked_list {
                 return NULL != curr;
             }
         }
-
-
-
 };
 
 #endif
