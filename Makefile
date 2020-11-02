@@ -18,7 +18,7 @@ OBJ := obj
 EXE := exe
 
 # make server
-ServerObjs := $(SERVER)/$(OBJ)/server
+ServerObjs := $(SERVER)/$(OBJ)/server.o
 
 server: $(ServerObjs)
 	$(PP) $(CXXFLAGS) -o $(SERVER)/$(EXE)/server $(ServerObjs)
@@ -44,7 +44,11 @@ all: server dummy-device
 
 # make clean
 clean :
-	rm -rf *.o $(OBJ)/* $(EXE)/*
+	# clean server stuff
+	rm -rf $(SERVER)/$(OBJ)/* $(SERVER)/$(EXE)/* 
+	
+	# clean dummy stuff
+	rm -rf $(DUMMY)/$(OBJ)/* $(DUMMY)/$(EXE)/*
 
 # full g++ args
 # g++ -m64 -std=c++11 -Weffc++ -O0 -g -Wall -Wextra -Wconversion -Wshadow -pedantic -Werror
