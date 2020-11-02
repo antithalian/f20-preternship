@@ -100,6 +100,27 @@ class pool {
             // push pointer onto freelist
             free_list.push_front((std::size_t) pointer);
         }
+
+        // simple getters for internal data
+        // get total size
+        std::size_t get_total_size() {
+            return total_size;
+        }
+
+        // get chunk size
+        std::size_t get_chunk_size() {
+            return chunk_size;
+        }
+
+        // get peak size
+        std::size_t get_peak_size() {
+            return peak_size;
+        }
+
+        // get current size
+        std::size_t get_curr_size() {
+            return curr_size;
+        }
 };
 
 #endif
