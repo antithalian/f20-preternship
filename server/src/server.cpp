@@ -28,5 +28,17 @@ struct client {
 
 // test main
 int main(void) {
+    
+    // initialize fixed pool of memory
+    pool((MAX_CLIENT_COUNT * sizeof(client)), sizeof(client));
+    
+    // initialize track of how many clients 
+    int current_client_count = 0;
+    
+    while(MAX_CLIENT_COUNT > current_client_count) {
+    
+    }
+    
+    
     return 0;
 }
