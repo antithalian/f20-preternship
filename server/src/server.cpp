@@ -25,3 +25,8 @@ struct client {
     // client's error state
     bool is_oob;
 };
+
+// test main
+int main(void) {
+    return 0;
+}
