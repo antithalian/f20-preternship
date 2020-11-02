@@ -43,11 +43,9 @@ $(DUMMY)/$(OBJ)/dummy-device.o: $(DUMMY)/$(SRC)/dummy-device.cpp
 all: server dummy-device
 
 # make clean
-clean :
-	# clean server stuff
+# separately cleans dummy and server objects and executables
+clean:
 	rm -rf $(SERVER)/$(OBJ)/* $(SERVER)/$(EXE)/* 
-	
-	# clean dummy stuff
 	rm -rf $(DUMMY)/$(OBJ)/* $(DUMMY)/$(EXE)/*
 
 # full g++ args
