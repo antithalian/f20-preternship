@@ -40,8 +40,11 @@ $(DUMMY)/$(OBJ)/dummy-device.o: $(DUMMY)/$(SRC)/dummy-device.cpp
 # add recursive find and format?
 
 # make all
-all: check server dummy-device
+all: server dummy-device
 
 # make clean
 clean :
 	rm -rf *.o $(OBJ)/* $(EXE)/*
+
+# full g++ args
+# g++ -m64 -std=c++11 -Weffc++ -O0 -g -Wall -Wextra -Wconversion -Wshadow -pedantic -Werror
