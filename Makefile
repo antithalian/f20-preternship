@@ -21,7 +21,7 @@ EXE := exe
 ServerObjs := $(SERVER)/$(OBJ)/server
 
 server: $(ServerObjs)
-	$(PP) $(CXXFLAGS) -o $(SERVER)/$(EXE)/SorDLLTest $(ServerObjs)
+	$(PP) $(CXXFLAGS) -o $(SERVER)/$(EXE)/server $(ServerObjs)
 
 $(SERVER)/$(OBJ)/server.o: $(SERVER)/$(SRC)/server.cpp
 	$(PP) $(CXXFLAGS) -c $(SERVER)/$(SRC)/server.cpp -o $@
