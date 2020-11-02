@@ -35,8 +35,9 @@ dummy-device: $(DummyObjs)
 $(DUMMY)/$(OBJ)/dummy-device.o: $(DUMMY)/$(SRC)/dummy-device.cpp
 	$(PP) $(CXXFLAGS) -c $(DUMMY)/$(SRC)/dummy-device.cpp -o $@
 
-# make check
-# add the clang-format stuff here
+# make format
+# make format:
+# add recursive find and format?
 
 # make all
 all: check server dummy-device
