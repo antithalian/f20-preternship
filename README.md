@@ -2,7 +2,7 @@
 Fall 2020 Notre Dame CSE 20312 Preternship Project    
 GE Healthcare Team - John Sullivan, Jacob Larget, Jacob Nemec
 
-# TO DO
+## TO DO
 - make everything compileable via makefile
 - make `make clean` work correctly
     - needs to actually clean things up, for starters
