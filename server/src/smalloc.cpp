@@ -1,3 +1,8 @@
+// try writing in C++
+// should be possible
+// and should also make things easier compiler-wise
+
+/*
 #include <assert.h>
 #include <string.h>
 #include <sys/types.h>
@@ -138,3 +143,4 @@ int main() {
     void *global_base = NULL;
     return 0;
 }
+*/
