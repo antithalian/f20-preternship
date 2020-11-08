@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 bool get_command(next_temp) {  
   <<next_temp;
   >>temp_status;
