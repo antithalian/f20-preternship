@@ -22,7 +22,7 @@ struct client {
     int curr_temp;
     // last 10 temps received from client
     int last_temps[10];
-    // client's error state
+    // client's out-of-bounds state
     bool is_oob;
 };
 
