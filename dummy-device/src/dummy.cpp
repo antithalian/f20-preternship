@@ -25,6 +25,8 @@ double send_temperature(bool temp_status) {
 
 int end(){
   >>x
+    //This function allows us to end the program's loop
+    //Through an imput from the server
     return x;
 }
   
