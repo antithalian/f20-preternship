@@ -30,8 +30,8 @@ struct client {
 int main(void) {
     
     // initialize fixed pool of memory
-    nicu_pool = pool((MAX_CLIENT_COUNT * sizeof(client)), sizeof(client));
-    nicu_pool.initialize();
+    pool nicu_pool = pool((MAX_CLIENT_COUNT * sizeof(client)), sizeof(client));
+    nicu_pool.init();
     
     // initialize track of how many clients 
     int current_client_count = 0;

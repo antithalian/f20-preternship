@@ -1,4 +1,4 @@
-// pool.h
+// pool.hpp
 // declares functions and structs required pool.cpp
 
 #ifndef POOL_H
@@ -50,7 +50,7 @@ class pool {
 
         // initialize
         // call after calling constructor
-        void initalize() {
+        void init() {
 
             // allocate full amount of memory required
             start_ptr = malloc(total_size);
@@ -70,7 +70,7 @@ class pool {
         }
 
         // allocate
-        void* allocate(const std::size_t size) {
+        void* alloc(const std::size_t size) {
             
             // if size is not correct, return NULL
             // on the caller to check that they actually got good memory back
