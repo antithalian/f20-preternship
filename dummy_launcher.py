@@ -22,6 +22,8 @@ def main():
     if arg_good:
 
         # launch a series of subprocess dummy devices
+        # placeholder for now...
+        subprocess.run(dummy_device)
         pass
     
     return 0
