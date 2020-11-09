@@ -12,7 +12,7 @@ NUMBER_OF_DEVICES = 50
 def main():
 
     # check that sys.argv is of the correct length
-    if len(sys.argv) == 3:
+    if len(argv) == 3:
         arg_good = True
     # if not, print/return error
     else:
