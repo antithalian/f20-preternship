@@ -1,7 +1,9 @@
-#include <math.h>
-#include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cmath>
+#include <ctime>
+#include <cstdlib>
+
+// custom includes
+#include "../../shared/zmq_conn.hpp"
 
 bool get_command(next_temp) {  
   <<next_temp;

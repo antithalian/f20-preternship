@@ -6,7 +6,7 @@
 
 // custom includes
 #include "../include/pool.hpp"
-#include <zmq.hpp>
+#include "../../shared/zmq_conn.hpp"
 
 
 // MAGIC NUMBERS
