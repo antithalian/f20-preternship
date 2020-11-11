@@ -12,6 +12,7 @@
 struct message {
 
     // 4 character message type
+    // expected types are KILL, TEMP, COMM
     const char* typ[4];
     // double temperature - depending on type this is either a target or current temp
     double temperature;
@@ -19,9 +20,7 @@ struct message {
     unsigned int size = sizeof(typ) + sizeof(temperature);
 
     // constructor
-    message(const char* intype[4], double intemp) : typ(intype), temperature(intemp) {
-        assert(MSG_SIZE = (sizeof(typ) + sizeof(temperature)));
-    }
+    message(const char* intype[4], double intemp) : typ(intype), temperature(intemp) {}
 
     // serialize
     // serializes all struct members into a caller-provided buffer
@@ -31,13 +30,6 @@ struct message {
     }
 
 };
-
-// zmq initialization
-zmq::socket_t initialize() {
-
-    // intializes socket of the correct type and hands it back to the caller
-
-}
 
 // zmq send
 bool zmq_send(zmq::socket_t sock, const char* send_buffer) {
