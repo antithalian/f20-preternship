@@ -26,15 +26,18 @@ int main(int argc, char* argv[]) {
 
     // read in arguments
     // assume python program gave the correct stuff
+    unsigned int serial;
+    double ampl, shif;
+    bool oob_gen;
     if (argc == 4) {
-            // serial
-        unsigned int serial = (unsigned int) atoi(argv[0]);
+        // serial
+        serial = (unsigned int) atoi(argv[0]);
         // amplitude
-        double ampl = strtod(argv[1], NULL);
+        ampl = strtod(argv[1], NULL);
         // phase shift
-        double shif = strtod(argv[2], NULL);
+        shif = strtod(argv[2], NULL);
         // oob gen?
-        bool oob_gen = strtod(argv[3], NULL);
+        oob_gen = strtod(argv[3], NULL);
     }
     else {
         return 1;
