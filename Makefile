@@ -6,6 +6,7 @@ PP := g++
 # production quality compilation flags
 FLAGS := -O0 -g -Wall -Wextra -Wconversion -Wshadow -pedantic -Werror 
 CXXFLAGS := -m64 -std=c++11 -Weffc++ $(FLAGS)
+LINKFLAGS := -lzmq -lzmqpp
 
 # project folders
 DUMMY := dummy-device
@@ -49,4 +50,4 @@ clean:
 	rm -rf $(DUMMY)/$(OBJ)/* $(DUMMY)/$(EXE)/*
 
 # full g++ args
-# g++ -m64 -std=c++11 -Weffc++ -O0 -g -Wall -Wextra -Wconversion -Wshadow -pedantic -Werror
+# g++ -m64 -std=c++11 -Weffc++ -O0 -g -Wall -Wextra -Wconversion -Wshadow -pedantic -Werror -lzmq -lzmqpp
