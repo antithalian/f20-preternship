@@ -3,33 +3,77 @@
 
 // stdlib includes
 #include <iostream>
+#include <queue>
 
 // custom includes
 #include "../include/pool.hpp"
-#include "../../shared/zmq_conn.hpp"
+#include "../../shared/msg_util.hpp"
 
 
 // MAGIC NUMBERS
 // maximum number of clients allowed
 #define MAX_CLIENT_COUNT 50
-// size of a single message
-#define MSG_SIZE 0xBEEF // TODO - get an actual number
+// endpoint for zmq comms
+const std::string endpoint = "tcp://127.0.0.1:55555";
 
 // client struct
 // needs to be constant size for pool allocator to work right
 struct client {
 
     // client identifier
-    char ident[32];
+    char ident[16];
     // client's current temp
-    int curr_temp;
+    double curr_temp;
     // last 10 temps received from client
-    int last_temps[10];
+    double last_temps[10];
     // client's out-of-bounds state
     bool is_oob;
+
+    // constructor
+    client(double in_curr_temp, bool in_is_oob) :
+        ident({'.'}), curr_temp(in_curr_temp), last_temps({0}) is_oob(in_is_oob) {}
+
+    // set identifier
+    // returns true if successful, false if not
+    bool set_ident(const std::string id) {
+
+        // check that id is correct length (16 chars)
+        if (id.length() != 16) {
+            return false;
+        }
+
+        // iterate through and set everything
+        for (int i = 0; i < 16; i++) {
+            ident[i] = id[i];
+        }
+
+        return true;
+    }
+
+    // update temps
+    // put input temp at front of last temps and shift everything else
+    void update_temps(double new_temp) {
+
+        // add every element onto queue
+        std::queue<double> holds;
+        for (int i = 0; i < 10; i++) {
+            holds.push(last_temps[i]);
+        }
+
+        // place new temp in both required locations
+        curr_temp = new_temp;
+        last_temps[0] = new_temp;
+
+        // iterate through and put other temps back
+        for (int i = 1; i < 10; i++) {
+            last_temps[i] = holds.front();
+            holds.pop();
+        }
+    }
+
 };
 
-// test main
+// main server loop
 int main(void) {
     
     // initialize fixed pool of memory
@@ -39,53 +83,18 @@ int main(void) {
     // initialize var to keep track of how many clients are active
     int current_client_count = 0;
 
-    // initialize zmq setup
-    zmq::socket_t zmq_sock = initialize();
-   
-    bool is_good = 1;
-    client* clients[50];
+    // set up zmq server
+    // create context
+    zmq::context_t ctx;
+    // bind to addr and port
     
-    while(is_good) {
 
-        // set up for send buffer
-        char * send_buffer[MSG_SIZE];
-        // set up for recv buffer
-        char * recv_buffer[MSG_SIZE];
-        
-        if(new_client_connected) {
-            
-            // receive from socket
-            bool success = zmq_receive(zmq_sock, &recv_buffer);
 
-            // need to handle recv_buffer contents here
+    // shut down everything
+    // send message to all clients telling them to die
 
-            clients[current_client_count] = nicu_pool.alloc(sizeof(client));
-            current_client_count++;
-                
-        }
-            
-        // first main error to check
-        for(int i = 0; i < current_client_count; ++i) {
-            if(&clients[i].is_oob) {
-                is_good = 0;
-                exit("Out of Bounds Error on Client %d", i);
-            }
-        }
-        // second main error to check
-        if(MAX_CLIENT_COUNT < client_current_count + 1) {
-            is_good = 0;
-            exit("Out of Bounds Error for the Pool");
-        }
-            
-    }
-        
-        
-    // when the code exits, the pool needs to be freed. Maybe this can be made into a helper function and put prior to the exit statements?
-    for(int i = current_client_count; i >= 0; --i) {
-        nicu_pool.free(clients[i]);
-    }
+    // shut down zmq context
+    ctx.shutdown();
 
-    
-    
     return 0;
 }
