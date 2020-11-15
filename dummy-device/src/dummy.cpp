@@ -3,10 +3,11 @@
 
 // stdlib includes
 #include <cmath>
-#include <ctime>
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
 // custom includes
 #include "../../shared/msg_util.hpp"
@@ -25,22 +26,28 @@ int main(int argc, char* argv[]) {
 
     // read in arguments
     // assume python program gave the correct stuff
-    // serial
-    unsigned int serial = (unsigned int) atoi(argv[0]);
-    // amplitude
-    double ampl;
-    // phase shift
-    double shif;
+    if (argc == 4) {
+            // serial
+        unsigned int serial = (unsigned int) atoi(argv[0]);
+        // amplitude
+        double ampl = strtod(argv[1], NULL);
+        // phase shift
+        double shif = strtod(argv[2], NULL);
+        // oob gen?
+        bool oob_gen = strtod(argv[3], NULL);
+    }
+    else {
+        return 1;
+    }
     // time
-    double time;
-    // oob gen?
-    bool oob_gen;
+    double time = 0;
 
     // create identifier from serial
     std::string ident = create_ident(serial);
 
-    // set up payload struct to reuse
-    payload self = payload("COMM", ident, 0.0);
+    // set up payload structs to reuse
+    payload self = payload("TEMP", ident, 0.0);
+    payload recvd = payload("COMM", "SERVER_WARMER_00", 0.0);
   
     // set up zmq client
     // create context
@@ -56,8 +63,29 @@ int main(int argc, char* argv[]) {
     // active loop
     while (!die) {
 
+        // send current state to server
+        // BUILD THIS OUT
 
+        // wait for server response
+        zmqpp::message recv_msg;
+        socket.receive(recv_msg, zmqpp::socket::normal);
+        // put received contents into string
+        std::string recv_str;
+        recv_msg >> recv_str; // contents of payload from client
 
+        // reconstruct payload
+        recvd.type = recv_str.substr(0, 4);
+        recvd.identifier = recv_str.substr(4, 16);
+        recvd.temperature = std::stod(recv_str.substr(20));
+
+        // react to whatever the server said to do
+        // BUILD THIS OUT
+
+        // sleep for a bit
+        std::chrono::milliseconds wait(1000); // wait 1s
+        std::this_thread::sleep_for(wait);
+        // increment the time
+        time++;
     }
 
     // if we make it to here, shut down context and return
@@ -73,8 +101,8 @@ std::string create_ident(unsigned int serial) {
     std::string ret = "CLIENT_WARMER_" + std::to_string(serial);
     return ret;
 }
-double get_temp(double time, double amplitude, double shift, bool go_oob) {
-
+double get_temp(double time, double ampl, double shif, bool go_oob) {
+    // BUILD THIS OUT
 }
 
 // 97.9-100.4F typical

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <queue>
 #include <cstring>
+#include <vector>
 
 // custom includes
 #include "../include/pool.hpp"
@@ -87,6 +88,13 @@ int main(void) {
     
     // initialize var to keep track of how many clients are active
     int current_client_count = 0;
+    // also a vector to hold on to actual memory positions
+    std::vector<long unsigned int> clients;
+    
+    // initialize two payloads
+    // one for us to reuse as sender, one for us to recompose messages into
+    payload self = payload("COMM", "SERVER_WARMER_00", 0.0);
+    payload recvd = payload("TEMP", "PLACEHOLDER_0000", 0.0);
 
     // set up zmq server
     // create context
@@ -103,9 +111,38 @@ int main(void) {
     COUT << "entering main loop..." << ENDL << "--------------------" << ENDL;
     while (true) { // update this to kill itself on something...
 
+        // receive from socket we've bound to
+        // this is a blocking op, so it'll wait here until something comes in
+        zmqpp::message recv_msg;
+        socket.receive(recv_msg, zmqpp::socket::normal);
+        // put message contents into string
+        std::string recv_str;
+        recv_msg >> recv_str; // contents of serialized payload from client
+
+        // once something has arrived, figure out what it is
+        // aka stick it back into a payload struct
+        recvd.type = recv_str.substr(0, 4);
+        recvd.identifier = recv_str.substr(4, 16);
+        recvd.temperature = std::stod(recv_str.substr(20));
+
+        // figure out if that client has been seen before
+        // BUILD THIS OUT
+
+        // send out the correct response
+        // BUILD THIS OUT
+
+        // check if user sent the quit message
+        // BUILD THIS OUT
         current_client_count++;
         break;
+    }
 
+    // if user has quit, then we kill every client
+    for (unsigned long int i = 0; i < clients.size(); i++) {
+        // send kill message to every client
+        // zmq dontwait is set for each - no need to wait for them to die
+        // BUILD THIS OUT
+        break;
     }
 
     // if we get here, shut things down and return
