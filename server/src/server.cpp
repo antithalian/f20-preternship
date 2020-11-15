@@ -5,11 +5,11 @@
 #include <iostream>
 #include <queue>
 #include <cstring>
+#include <string>
 #include <vector>
 
 // custom includes
 #include "../include/pool.hpp"
-#include "../../shared/slinked_list.hpp"
 #include "../../shared/msg_util.hpp"
 #include <zmqpp/zmqpp.hpp>
 
@@ -35,6 +35,9 @@ struct client {
     double last_temps[10];
     // client's out-of-bounds state
     bool is_oob;
+
+    // zero arg constructor
+    client() {}
 
     // constructor
     client(double in_curr_temp, bool in_is_oob) :
@@ -90,7 +93,7 @@ int main(void) {
     // initialize var to keep track of how many clients are active
     int current_client_count = 0;
     // also a vector to hold on to actual memory positions
-    slinked_list<client*> clients;
+    std::vector<size_t> clients;
     // die
     bool die = false;
     
@@ -126,18 +129,59 @@ int main(void) {
         // aka stick it back into a payload struct
         recvd.type = recv_str.substr(0, 4);
         recvd.identifier = recv_str.substr(4, 16);
+        COUT << recvd.identifier << ENDL;
         recvd.temperature = std::stod(recv_str.substr(20));
 
+        // dbg
+        COUT << recvd.type << " " << recvd.identifier << " " << recvd.temperature << ENDL;
+
         // figure out if that client has been seen before
-        
+        bool seen = false;
+        client* curr_client;
+        for (size_t i = 0; i < clients.size(); i++) {
+            
+            // get a pointer to the current struct in the pool
+            client* check = (client*) clients.at(i);
+            
+            // check if it's been seen
+            if (check->ident == recvd.identifier) {
+                seen = true;
+                curr_client = check;
+            }
+        }
+
+        // if not seen, make a new one and increment count
+        if (!seen) {
+            curr_client = (client*) nicu_pool.alloc(sizeof(client));
+        }
+
         // build proper payload based on client state
         if (!die) {
+
+            // if temp oob
+            if ((curr_client->curr_temp < 97.9) || (curr_client->curr_temp > 100.4)) {
+                // respond with target
+                // TODO
+
+                // set curr_client to oob
+                curr_client->is_oob = true;
+            }
+            // if temp normal, respond with basic
+            else {
+                // respond with basic
+                // TODO
+
+                // reset oob if previously oob
+                if (curr_client->is_oob) {
+                    curr_client->is_oob = false;
+                }
+            }
 
         }
         // otherwise build a kill payload
         else {
             self.type = "KILL";
-            nicu_pool.free(); // ADD POINTER TO FREE
+            // nicu_pool.free(); // ADD POINTER TO FREE
             current_client_count--;
         }
         
@@ -156,14 +200,6 @@ int main(void) {
             break;
         }
     }
-
-    /*// if user has quit, then we kill every client
-    for (unsigned long int i = 0; i < clients.size(); i++) {
-        // send kill message to every client
-        // zmq dontwait is set for each - no need to wait for them to die
-        client* to_kill = (struct client*) clients.at(i);
-        
-    }*/
 
     // if we get here, shut things down and return
     socket.unbind(ENDPOINT);
