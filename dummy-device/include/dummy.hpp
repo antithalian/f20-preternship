@@ -7,6 +7,6 @@
 #define DUMMY_H
 
 std::string create_ident(unsigned int);
-double get_temp(double, double, double);
+double get_temp(double, double, double, bool);
 
 #endif

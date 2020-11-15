@@ -27,7 +27,6 @@ struct payload {
     std::string serialize() {
         return (type + identifier + std::to_string(temperature));
     }
-
 };
 
 // originally meant to include send and receive functions

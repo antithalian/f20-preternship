@@ -108,5 +108,9 @@ int main(void) {
 
     }
 
+    // if we get here, shut things down and return
+    socket.unbind(ENDPOINT);
+    socket.close();
+    context.terminate();
     return 0;
 }

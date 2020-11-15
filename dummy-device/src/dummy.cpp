@@ -13,6 +13,9 @@
 #include "../include/dummy.hpp"
 #include <zmqpp/zmqpp.hpp>
 
+// IO defines
+#define COUT std::cout
+#define ENDL std::endl
 
 // MAGIC NUMBERS
 // endpoint for zmq comms
@@ -35,6 +38,9 @@ int main(int argc, char* argv[]) {
 
     // create identifier from serial
     std::string ident = create_ident(serial);
+
+    // set up payload struct to reuse
+    payload self = payload("COMM", ident, 0.0);
   
     // set up zmq client
     // create context
@@ -54,6 +60,11 @@ int main(int argc, char* argv[]) {
 
     }
 
+    // if we make it to here, shut down context and return
+    socket.disconnect(ENDPOINT);
+    socket.close();
+    context.terminate();
+    return 0;
 }
 
 // creates an identifier for a client given a serial number for the warmer
@@ -62,7 +73,7 @@ std::string create_ident(unsigned int serial) {
     std::string ret = "CLIENT_WARMER_" + std::to_string(serial);
     return ret;
 }
-double get_temp(double, double, double) {
+double get_temp(double time, double amplitude, double shift, bool go_oob) {
 
 }
 
