@@ -8,13 +8,14 @@
 // custom includes
 #include "../include/pool.hpp"
 #include "../../shared/msg_util.hpp"
+#include <zmqpp/zmqpp.hpp>
 
 
 // MAGIC NUMBERS
 // maximum number of clients allowed
 #define MAX_CLIENT_COUNT 50
 // endpoint for zmq comms
-const std::string endpoint = "tcp://127.0.0.1:55555";
+const std::string ENDPOINT = "tcp://127.0.0.1:55555";
 
 // client struct
 // needs to be constant size for pool allocator to work right
@@ -31,7 +32,7 @@ struct client {
 
     // constructor
     client(double in_curr_temp, bool in_is_oob) :
-        ident({'.'}), curr_temp(in_curr_temp), last_temps({0}) is_oob(in_is_oob) {}
+        ident({'.'}), curr_temp(in_curr_temp), last_temps({0}), is_oob(in_is_oob) {}
 
     // set identifier
     // returns true if successful, false if not
@@ -73,7 +74,7 @@ struct client {
 
 };
 
-// main server loop
+// main
 int main(void) {
     
     // initialize fixed pool of memory
@@ -85,16 +86,19 @@ int main(void) {
 
     // set up zmq server
     // create context
-    zmq::context_t ctx;
-    // bind to addr and port
-    
+    zmqpp::context context;
+    // generate socket
+    zmqpp::socket_type type = zmqpp::socket_type::reply;
+    zmqpp::socket socket (context, type);
+    // bind to socket
+    socket.bind(ENDPOINT); // ENDPOINT defined in MAGIC up top
+
+    // main active loop
+    while (true) { // update this to kill itself on something...
 
 
-    // shut down everything
-    // send message to all clients telling them to die
 
-    // shut down zmq context
-    ctx.shutdown();
+    }
 
     return 0;
 }

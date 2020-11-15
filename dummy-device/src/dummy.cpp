@@ -1,55 +1,69 @@
+// dummy.cpp
+// dummy NICU baby warmer
+
+// stdlib includes
 #include <cmath>
 #include <ctime>
+#include <iostream>
+#include <string>
 #include <cstdlib>
 
 // custom includes
-#include "../../shared/zmq_conn.hpp"
+#include "../../shared/msg_util.hpp"
+#include "../include/dummy.hpp"
+#include <zmqpp/zmqpp.hpp>
 
-bool get_command(next_temp) {  
-  <<next_temp;
-  >>temp_status;
-  //This will send the temp data to the server
-  //And recieve the status from the server  
-  return temp_status;    
+
+// MAGIC NUMBERS
+// endpoint for zmq comms
+const std::string ENDPOINT = "tcp://127.0.0.1:55555";
+
+int main(int argc, char* argv[]) {
+
+    // read in arguments
+    // assume python program gave the correct stuff
+    // serial
+    unsigned int serial = (unsigned int) atoi(argv[0]);
+    // amplitude
+    double ampl;
+    // phase shift
+    double shif;
+    // time
+    double time;
+    // oob gen?
+    bool oob_gen;
+
+    // create identifier from serial
+    std::string ident = create_ident(serial);
+  
+    // set up zmq client
+    // create context
+    zmqpp::context context;
+    // generate socket
+    zmqpp::socket_type type = zmqpp::socket_type::request;
+    zmqpp::socket socket (context, type);
+    // connect to socket
+    socket.connect(ENDPOINT);
+
+    // loop sentinel
+    bool die = false;
+    // active loop
+    while (!die) {
+
+
+
+    }
+
 }
 
-double send_temperature(bool temp_status) {
-  if(temp_status == 0) {
-    srand(1);
-  }
-  
-  next_temp = 99.15 + 5.5*sin(rand()%100);
-  //Based on the status of the temperature previously
-  //Either the temp will continue to fluctuat as normal
-  //Or it will be reset to 99.15 if it is out of bounds
-  return next_temp;
+// creates an identifier for a client given a serial number for the warmer
+std::string create_ident(unsigned int serial) {
+
+    std::string ret = "CLIENT_WARMER_" + std::to_string(serial);
+    return ret;
+}
+double get_temp(double, double, double) {
+
 }
 
-int end(){
-  >>x
-    //This function allows us to end the program's loop
-    //Through an imput from the server
-    return x;
-}
-  
-
-int main() {
-  srand(1);
-  int x = 0;
-  
-  while (x == 0){
-  double next_temp;
-  // we want to ensure that we get all of the tests we need.
-  // 97.9 - 100.4 degrees Fahrenheit is typical for babies and children.
-  // gives an average starting temperature of 99.15.
-  bool temp_status;
-  
-  temp_status = get_command(next_temp);
-  send_temperature(temp_status);
-   
-    pause(2);
-  x = end();
-  }
-  
-  return 0;
-}
+// 97.9-100.4F typical
