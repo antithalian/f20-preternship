@@ -29,15 +29,16 @@ int main(int argc, char* argv[]) {
     unsigned int serial;
     double ampl, shif;
     bool oob_gen;
-    if (argc == 4) {
+    COUT << argc << ENDL;
+    if (argc == 5) {
         // serial
         serial = (unsigned int) atoi(argv[0]);
         // amplitude
         ampl = strtod(argv[1], NULL);
         // phase shift
         shif = strtod(argv[2], NULL);
-        // oob gen?
-        oob_gen = strtod(argv[3], NULL);
+        // oob gen
+        oob_gen = (strcmp(argv[3], "true")) ? true : false;
     }
     else {
         return 1;
@@ -61,13 +62,19 @@ int main(int argc, char* argv[]) {
     // connect to socket
     socket.connect(ENDPOINT);
 
-    // loop sentinel
-    bool die = false;
     // active loop
-    while (!die) {
+    while (true) {
 
+        COUT << "ENTERED MAIN LOOP" << ENDL;
+
+        // get and set current temperature based on parameters
+        double curr_temp = get_temp(time, ampl, shif, oob_gen);
+        self.temperature = curr_temp;
+        // create a zmq message and put the payload into it
+        zmqpp::message send_msg;
+        send_msg << self.serialize();
         // send current state to server
-        // BUILD THIS OUT
+        socket.send(send_msg, zmqpp::socket::normal);
 
         // wait for server response
         zmqpp::message recv_msg;
@@ -82,7 +89,17 @@ int main(int argc, char* argv[]) {
         recvd.temperature = std::stod(recv_str.substr(20));
 
         // react to whatever the server said to do
-        // BUILD THIS OUT
+        if (recvd.type == "COMM") {
+
+            // if temp is not zero, adjust
+            if (recvd.temperature != 0) {
+                // TODO - ADJUST TEMP HERE
+            }
+        }
+        // if not comm, it'll be kill, so die
+        else {
+            break;
+        }
 
         // sleep for a bit
         std::chrono::milliseconds wait(1000); // wait 1s
@@ -105,7 +122,26 @@ std::string create_ident(unsigned int serial) {
     return ret;
 }
 double get_temp(double time, double ampl, double shif, bool go_oob) {
-    // BUILD THIS OUT
+
+    // calculate correct temperature for now time
+    double freq = 0.5;
+    double val = ampl * sin((freq * time) + shif);
+
+    // if oob gen is set, take a chance at having it actually go oob
+    if (go_oob) {
+        srand(time(NULL));
+        unsigned int res = rand() % 100;
+        // have it maybe go oob if rand() was above 50
+        if (res > 75) {
+            return 99.15 + val + 1.3;
+        }
+        // or if below 25
+        if (res < 25) {
+            return 99.15 + val - 1.3;
+        }
+    }
+
+    return 99.15 + val;
 }
 
 // 97.9-100.4F typical
