@@ -9,6 +9,7 @@
 
 // custom includes
 #include "../include/pool.hpp"
+#include "../../shared/slinked_list.hpp"
 #include "../../shared/msg_util.hpp"
 #include <zmqpp/zmqpp.hpp>
 
@@ -89,7 +90,9 @@ int main(void) {
     // initialize var to keep track of how many clients are active
     int current_client_count = 0;
     // also a vector to hold on to actual memory positions
-    std::vector<long unsigned int> clients;
+    slinked_list<client*> clients;
+    // die
+    bool die = false;
     
     // initialize two payloads
     // one for us to reuse as sender, one for us to recompose messages into
@@ -126,28 +129,50 @@ int main(void) {
         recvd.temperature = std::stod(recv_str.substr(20));
 
         // figure out if that client has been seen before
-        // BUILD THIS OUT
+        
+        // build proper payload based on client state
+        if (!die) {
 
+        }
+        // otherwise build a kill payload
+        else {
+            self.type = "KILL";
+            nicu_pool.free(); // ADD POINTER TO FREE
+            current_client_count--;
+        }
+        
         // send out the correct response
-        // BUILD THIS OUT
+        // build response
+        zmqpp::message send_msg;
+        send_msg << self.serialize();
+        socket.send(send_msg, zmqpp::socket::normal);
 
         // check if user sent the quit message
-        // BUILD THIS OUT
-        current_client_count++;
-        break;
+        if (false) {
+            die = true;
+        }
+        // if current_client_count == 0 and die == true, break
+        if ((die == true) && (current_client_count == 0)) {
+            break;
+        }
     }
 
-    // if user has quit, then we kill every client
+    /*// if user has quit, then we kill every client
     for (unsigned long int i = 0; i < clients.size(); i++) {
         // send kill message to every client
         // zmq dontwait is set for each - no need to wait for them to die
-        // BUILD THIS OUT
-        break;
-    }
+        client* to_kill = (struct client*) clients.at(i);
+        
+    }*/
 
     // if we get here, shut things down and return
     socket.unbind(ENDPOINT);
     socket.close();
     context.terminate();
+    // let the user know we're done
+    COUT << "--------------------" << ENDL << "zeromq context destruction complete - exiting" << ENDL;
     return 0;
 }
+
+// output debugging
+// COUT << recvd.type << " " << recvd.identifier << " " << recvd.temperature << ENDL;
