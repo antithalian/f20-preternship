@@ -22,26 +22,27 @@ EXE := exe
 ServerObjs := $(SERVER)/$(OBJ)/server.o
 
 server: $(ServerObjs)
-	$(PP) $(CXXFLAGS) -o $(SERVER)/$(EXE)/server $(ServerObjs)
+	$(PP) $(CXXFLAGS) $(LINKFLAGS) -o $(SERVER)/$(EXE)/server $(ServerObjs)
 
 $(SERVER)/$(OBJ)/server.o: $(SERVER)/$(SRC)/server.cpp
 	$(PP) $(CXXFLAGS) -c $(SERVER)/$(SRC)/server.cpp -o $@
 
 # make dummy-device
-DummyObjs := $(DUMMY)/$(OBJ)/dummy-device.o
+DummyObjs := $(DUMMY)/$(OBJ)/dummy.o
 
-dummy-device: $(DummyObjs)
-	$(PP) $(CXXFLAGS) -o $(DUMMY)/$(EXE)/dummy-device $(DummyObjs)
+dummy: $(DummyObjs)
+	$(PP) $(CXXFLAGS) $(LINKFLAGS) -o $(DUMMY)/$(EXE)/dummy $(DummyObjs)
 
-$(DUMMY)/$(OBJ)/dummy-device.o: $(DUMMY)/$(SRC)/dummy-device.cpp
-	$(PP) $(CXXFLAGS) -c $(DUMMY)/$(SRC)/dummy-device.cpp -o $@
+$(DUMMY)/$(OBJ)/dummy.o: $(DUMMY)/$(SRC)/dummy.cpp
+	$(PP) $(CXXFLAGS) -c $(DUMMY)/$(SRC)/dummy.cpp -o $@
 
 # make format
+# requires that clang-tidy and clang-format be installed
 # make format:
 # add recursive find and format?
 
 # make all
-all: server dummy-device
+all: server dummy
 
 # make clean
 # separately cleans dummy and server objects and executables
