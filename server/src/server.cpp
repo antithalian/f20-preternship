@@ -4,12 +4,16 @@
 // stdlib includes
 #include <iostream>
 #include <queue>
+#include <cstring>
 
 // custom includes
 #include "../include/pool.hpp"
 #include "../../shared/msg_util.hpp"
 #include <zmqpp/zmqpp.hpp>
 
+// IO defines
+#define COUT std::cout
+#define ENDL std::endl
 
 // MAGIC NUMBERS
 // maximum number of clients allowed
@@ -22,7 +26,7 @@ const std::string ENDPOINT = "tcp://127.0.0.1:55555";
 struct client {
 
     // client identifier
-    char ident[16];
+    char ident[17];
     // client's current temp
     double curr_temp;
     // last 10 temps received from client
@@ -32,7 +36,7 @@ struct client {
 
     // constructor
     client(double in_curr_temp, bool in_is_oob) :
-        ident({'.'}), curr_temp(in_curr_temp), last_temps({0}), is_oob(in_is_oob) {}
+        curr_temp(in_curr_temp), is_oob(in_is_oob) {}
 
     // set identifier
     // returns true if successful, false if not
@@ -43,11 +47,8 @@ struct client {
             return false;
         }
 
-        // iterate through and set everything
-        for (int i = 0; i < 16; i++) {
-            ident[i] = id[i];
-        }
-
+        // copy contents of id into ident
+        strcpy(ident, id.c_str());
         return true;
     }
 
@@ -77,9 +78,12 @@ struct client {
 // main
 int main(void) {
     
+    COUT << "--------------------" << ENDL << "Server startup:" << ENDL;
+
     // initialize fixed pool of memory
     pool nicu_pool = pool((MAX_CLIENT_COUNT * sizeof(client)), sizeof(client));
     nicu_pool.init();
+    COUT << "client pool initialization - complete" << ENDL;
     
     // initialize var to keep track of how many clients are active
     int current_client_count = 0;
@@ -87,16 +91,20 @@ int main(void) {
     // set up zmq server
     // create context
     zmqpp::context context;
+    COUT << "zeromq context initialization - complete" << ENDL;
     // generate socket
     zmqpp::socket_type type = zmqpp::socket_type::reply;
     zmqpp::socket socket (context, type);
     // bind to socket
     socket.bind(ENDPOINT); // ENDPOINT defined in MAGIC up top
+    COUT << "zeromq socket bound to endpoint - " << ENDPOINT << ENDL;
 
     // main active loop
+    COUT << "entering main loop..." << ENDL << "--------------------" << ENDL;
     while (true) { // update this to kill itself on something...
 
-
+        current_client_count++;
+        break;
 
     }
 
