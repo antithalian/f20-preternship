@@ -31,3 +31,8 @@ def main():
 # we only want to run if we're main, so:
 if __name__ == "__main__":
     main()
+
+# default ampl should be 1.2 - account for fp errors
+# shif should be a random small value to move things around
+# serial should be a serial number
+# oob_gen should be a low chance random (or just set to be a few?)
