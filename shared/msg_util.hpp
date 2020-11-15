@@ -13,7 +13,7 @@ struct payload {
     // 4 character message type
     // expected types are KILL, TEMP, COMM
     const std::string type;
-    // 32 character sender identifier
+    // 16 character sender identifier
     const std::string identifier;
     // double temperature - depending on type this is either a target or current temp
     double temperature;
