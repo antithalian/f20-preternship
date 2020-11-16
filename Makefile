@@ -46,9 +46,9 @@ $(DUMMY)/$(OBJ)/killer.o: $(DUMMY)/$(SRC)/killer.cpp
 	$(PP) $(CXXFLAGS) -c $(DUMMY)/$(SRC)/killer.cpp -o $@
 
 # make format
-# requires that clang-tidy and clang-format be installed
-# make format:
-# add recursive find and format?
+# requires that clang-format be installed
+make format:
+	python3 clang-format.py
 
 # make all
 all: server dummy killer
