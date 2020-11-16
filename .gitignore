@@ -6,3 +6,5 @@
 # exclude executables
 server/exe/*
 dummy-device/exe/*
+server/obj/*
+dummy-device/obj/*
