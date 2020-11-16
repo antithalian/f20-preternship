@@ -36,13 +36,22 @@ dummy: $(DummyObjs)
 $(DUMMY)/$(OBJ)/dummy.o: $(DUMMY)/$(SRC)/dummy.cpp
 	$(PP) $(CXXFLAGS) -c $(DUMMY)/$(SRC)/dummy.cpp -o $@
 
+# make killer
+KillerObjs := $(DUMMY)/$(OBJ)/killer.o
+
+killer: $(KillerObjs)
+	$(PP) $(CXXFLAGS) $(LINKFLAGS) -o $(DUMMY)/$(EXE)/killer $(KillerObjs)
+
+$(DUMMY)/$(OBJ)/killer.o: $(DUMMY)/$(SRC)/killer.cpp
+	$(PP) $(CXXFLAGS) -c $(DUMMY)/$(SRC)/killer.cpp -o $@
+
 # make format
 # requires that clang-tidy and clang-format be installed
 # make format:
 # add recursive find and format?
 
 # make all
-all: server dummy
+all: server dummy killer
 
 # make clean
 # separately cleans dummy and server objects and executables
