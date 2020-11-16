@@ -67,9 +67,6 @@ int main(int argc, char* argv[]) {
     // active loop
     while (true) {
 
-        // dbg
-        COUT << "entering main loop" << ENDL;
-
         // get and set current temperature based on parameters
         double curr_temp = get_temp(time, ampl, shif, oob_gen);
         self.temperature = curr_temp;
@@ -130,8 +127,6 @@ std::string create_ident(unsigned int serial) {
     else {
         ret = "CLIENT_WARMER_" + std::to_string(serial);
     }
-
-    COUT << ret << ENDL;
     return ret;
 }
 double get_temp(double time, double ampl, double shif, bool go_oob) {

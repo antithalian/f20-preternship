@@ -162,9 +162,12 @@ int main(void) {
             curr_client = (client*) nicu_pool.alloc(sizeof(client));
             // add that to clients list
             clients.push_back(curr_client);
+            //dbg
+            COUT << clients.size() << ENDL;
             current_client_count++;
         }
-
+        // dbg
+        COUT << current_client_count << ENDL;
         // update values of curr_client
         curr_client->update_temps(recvd.temperature);
 
@@ -208,6 +211,7 @@ int main(void) {
         // report what's happened to the user
         COUT << "---------------------|" << ENDL;
         COUT << "Receieved from client: " << recvd.identifier << ENDL;
+        COUT << "Client message type  : " << recvd.type << ENDL;
         COUT << "Client's current temp: " << recvd.temperature << ENDL;
         COUT << "Out of bounds        : " << (((recvd.temperature < 97.9) || (recvd.temperature > 100.4)) ? "Yes" : "No") << ENDL;
         COUT << "Response type        : " << self.type << ENDL;
