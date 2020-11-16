@@ -162,12 +162,8 @@ int main(void) {
             curr_client = (client*) nicu_pool.alloc(sizeof(client));
             // add that to clients list
             clients.push_back(curr_client);
-            //dbg
-            COUT << clients.size() << ENDL;
             current_client_count++;
         }
-        // dbg
-        COUT << current_client_count << ENDL;
         // update values of curr_client
         curr_client->update_temps(recvd.temperature);
 

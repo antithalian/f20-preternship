@@ -66,7 +66,9 @@ def main():
     # wait for all launched processes to terminate
     print('Waiting for all 10 dummy devices to terminate...')
     for proc in procs:
-        proc.wait()
+        ret = proc.poll()
+        if ret == 0:
+            break
 
     print('All devices terminated. Exiting...')
     # end execution, no error
