@@ -93,7 +93,7 @@ int main(void) {
     // initialize var to keep track of how many clients are active
     int current_client_count = 0;
     // also a vector to hold on to actual memory positions
-    std::vector<size_t> clients;
+    std::vector<client*> clients;
     // die
     bool die = false;
     
@@ -129,11 +129,7 @@ int main(void) {
         // aka stick it back into a payload struct
         recvd.type = recv_str.substr(0, 4);
         recvd.identifier = recv_str.substr(4, 16);
-        COUT << recvd.identifier << ENDL;
         recvd.temperature = std::stod(recv_str.substr(20));
-
-        // dbg
-        COUT << recvd.type << " " << recvd.identifier << " " << recvd.temperature << ENDL;
 
         // figure out if that client has been seen before
         bool seen = false;
@@ -144,7 +140,7 @@ int main(void) {
             client* check = (client*) clients.at(i);
             
             // check if it's been seen
-            if (check->ident == recvd.identifier) {
+            if (strcmp(check->ident, recvd.identifier.c_str())) {
                 seen = true;
                 curr_client = check;
             }
@@ -153,15 +149,23 @@ int main(void) {
         // if not seen, make a new one and increment count
         if (!seen) {
             curr_client = (client*) nicu_pool.alloc(sizeof(client));
+            // add that to clients list
+            clients.push_back(curr_client);
+            current_client_count++;
         }
+
+        // update values of curr_client
+        curr_client->update_temps(recvd.temperature);
 
         // build proper payload based on client state
         if (!die) {
 
+            self.type = "COMM";
+
             // if temp oob
             if ((curr_client->curr_temp < 97.9) || (curr_client->curr_temp > 100.4)) {
                 // respond with target
-                // TODO
+                self.temperature = 99.15;
 
                 // set curr_client to oob
                 curr_client->is_oob = true;
@@ -169,19 +173,18 @@ int main(void) {
             // if temp normal, respond with basic
             else {
                 // respond with basic
-                // TODO
+                self.temperature = 0;
 
                 // reset oob if previously oob
                 if (curr_client->is_oob) {
                     curr_client->is_oob = false;
                 }
             }
-
         }
         // otherwise build a kill payload
         else {
             self.type = "KILL";
-            // nicu_pool.free(); // ADD POINTER TO FREE
+            nicu_pool.free((void *) curr_client);
             current_client_count--;
         }
         
@@ -190,6 +193,15 @@ int main(void) {
         zmqpp::message send_msg;
         send_msg << self.serialize();
         socket.send(send_msg, zmqpp::socket::normal);
+
+        // report what's happened to the user
+        COUT << "---------------------|" << ENDL;
+        COUT << "Receieved from client: " << recvd.identifier << ENDL;
+        COUT << "Client's current temp: " << recvd.temperature << ENDL;
+        COUT << "Out of bounds        : " << (((recvd.temperature < 97.9) || (recvd.temperature > 100.4)) ? "Yes" : "No") << ENDL;
+        COUT << "Response type        : " << self.type << ENDL;
+        COUT << "Response content     : " << self.temperature << ENDL;
+        COUT << "---------------------|" << ENDL;
 
         // check if user sent the quit message
         if (false) {

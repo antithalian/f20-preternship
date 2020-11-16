@@ -204,9 +204,9 @@ template<class T> class slinked_list {
             }
             // otherwise pop
             else {
-                node* temp = head;
+                // node* temp = head;
                 head = head->next;
-                delete(temp);
+                // delete(temp);
                 return true;
             }
         }

@@ -67,12 +67,12 @@ int main(int argc, char* argv[]) {
     // active loop
     while (true) {
 
-        COUT << "ENTERED MAIN LOOP" << ENDL;
+        // dbg
+        COUT << "entering main loop" << ENDL;
 
         // get and set current temperature based on parameters
         double curr_temp = get_temp(time, ampl, shif, oob_gen);
         self.temperature = curr_temp;
-        COUT << curr_temp << ENDL;
         // create a zmq message and put the payload into it
         zmqpp::message send_msg;
         send_msg << self.serialize();
@@ -90,9 +90,6 @@ int main(int argc, char* argv[]) {
         recvd.type = recv_str.substr(0, 4);
         recvd.identifier = recv_str.substr(4, 16);
         recvd.temperature = std::stod(recv_str.substr(20));
-
-        // dbg
-        COUT << recvd.type << " " << recvd.identifier << " " << recvd.temperature << ENDL;
 
         // react to whatever the server said to do
         if (recvd.type == "COMM") {
@@ -148,12 +145,13 @@ double get_temp(double time, double ampl, double shif, bool go_oob) {
         srand((unsigned int) std::time(NULL));
         unsigned int res = rand() % 100;
         // have it maybe go oob if rand() was above 50
-        if (res > 75) {
-            return 99.15 + val + 1.3;
-        }
-        // or if below 25
-        if (res < 25) {
-            return 99.15 + val - 1.3;
+        if (res > 50) {
+            if (val > 1.25) {
+                return 99.15 + val + 2.5;
+            }
+            else {
+                return 99.15 + val - 2.5;
+            }
         }
     }
 
