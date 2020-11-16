@@ -121,7 +121,7 @@ int main(void) {
 
     // main active loop
     COUT << "entering main loop..." << ENDL << "--------------------" << ENDL;
-    while (true) { // update this to kill itself on something...
+    while (true) {
 
         // receive from socket we've bound to
         // this is a blocking op, so it'll wait here until something comes in
@@ -136,6 +136,11 @@ int main(void) {
         recvd.type = recv_str.substr(0, 4);
         recvd.identifier = recv_str.substr(4, 16);
         recvd.temperature = std::stod(recv_str.substr(20));
+
+        // set die if told to kill by killer.cpp
+        if (recvd.type == "KILL" and recvd.identifier == "KILLER_KILLER_00") {
+            die = true;
+        }
 
         // figure out if that client has been seen before
         bool seen = false;
