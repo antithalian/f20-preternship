@@ -64,11 +64,9 @@ def main():
     # launch all processes for given conf option
     procs = [subprocess.Popen(com) for com in conf[int(opt)]]
     # wait for all launched processes to terminate
-    print('Waiting for all 10 dummy devices to terminate...')
+    print('Launching devices...')
     for proc in procs:
-        ret = proc.poll()
-        if ret == 0:
-            break
+        proc.wait()
 
     print('All devices terminated. Exiting...')
     # end execution, no error

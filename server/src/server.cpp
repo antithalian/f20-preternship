@@ -121,7 +121,7 @@ int main(void) {
 
     // main active loop
     COUT << "entering main loop..." << ENDL << "--------------------" << ENDL;
-    while (true) {
+    while (!die) {
 
         // receive from socket we've bound to
         // this is a blocking op, so it'll wait here until something comes in
