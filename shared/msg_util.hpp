@@ -8,8 +8,8 @@
 #include <string>
 
 // message payload struct
-struct payload {
-
+struct payload
+{
     // 4 character message type
     // expected types are KILL, TEMP, COMM
     std::string type;
@@ -19,12 +19,16 @@ struct payload {
     double temperature;
 
     // constructor
-    payload(const std::string in_type, const std::string in_ident, double in_temp) : 
-        type(in_type), identifier(in_ident), temperature(in_temp) {}
+    payload(const std::string in_type, const std::string in_ident, double in_temp)
+      : type(in_type)
+      , identifier(in_ident)
+      , temperature(in_temp)
+    {}
 
     // serialize
     // convert attributes into one string
-    std::string serialize() {
+    std::string serialize()
+    {
         return (type + identifier + std::to_string(temperature));
     }
 };

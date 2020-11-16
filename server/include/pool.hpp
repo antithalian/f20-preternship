@@ -5,122 +5,127 @@
 #define POOL_H
 
 // stdlib includes
-#include <cstddef>
-#include <cstdlib>
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 
 // custom includes
 #include "../../shared/slinked_list.hpp"
 
-class pool {
+class pool
+{
+  private:
+    // total size of pool in bytes
+    std::size_t total_size;
+    // size of a single chunk in bytes
+    std::size_t chunk_size;
 
-    private:
+    // keep track of current and peak size because why not
+    std::size_t peak_size, curr_size;
 
-        // total size of pool in bytes
-        std::size_t total_size;
-        // size of a single chunk in bytes
-        std::size_t chunk_size;
+    // memory region start pointer
+    void* start_ptr = NULL;
 
-        // keep track of current and peak size because why not
-        std::size_t peak_size, curr_size;
+    // free list
+    slinked_list<std::size_t> free_list;
 
-        // memory region start pointer
-        void* start_ptr = NULL;
+  public:
+    // default constructor
+    // total size MUST be a multiple of chunk size
+    // proper usage is to call "pool((n * sizeof(data)), sizeof(data))"
+    pool(const std::size_t intotal_size, const std::size_t inchunk_size)
+      : total_size(intotal_size)
+      , chunk_size(inchunk_size)
+      , peak_size(0)
+      , curr_size(0)
+    {}
 
-        // free list
-        slinked_list<std::size_t> free_list;
+    // destructor
+    ~pool()
+    {
+        // just free the whole chunk we allocated
+        free(start_ptr);
+    }
 
-    public:
+    // initialize
+    // call after calling constructor
+    void init()
+    {
+        // allocate full amount of memory required
+        start_ptr = malloc(total_size);
 
-        // default constructor
-        // total size MUST be a multiple of chunk size
-        // proper usage is to call "pool((n * sizeof(data)), sizeof(data))"
-        pool(const std::size_t intotal_size, const std::size_t inchunk_size) : 
-            total_size(intotal_size), 
-            chunk_size(inchunk_size), 
-            peak_size(0), 
-            curr_size(0) {}
+        // figure out number of chunks
+        const std::size_t chunk_count = total_size / chunk_size;
 
-        // destructor
-        ~pool() {
-            // just free the whole chunk we allocated
-            free(start_ptr);
+        // create linked list with all free positions
+        for (std::size_t i = 0; i < chunk_count; i++)
+        {
+            // determine address for start of chunk
+            std::size_t addr = (std::size_t)((std::size_t)start_ptr + (i * chunk_size));
+
+            // push onto free list
+            free_list.push_front(addr);
+        }
+    }
+
+    // allocate
+    void* alloc(const std::size_t size)
+    {
+        // if size is not correct, return NULL
+        // on the caller to check that they actually got good memory back
+        if (size != chunk_size)
+        {
+            return NULL;
         }
 
-        // initialize
-        // call after calling constructor
-        void init() {
+        // get next free position from free list
+        // then remove it from free list
+        std::size_t free_pos = free_list.front();
+        free_list.pop_front();
 
-            // allocate full amount of memory required
-            start_ptr = malloc(total_size);
+        // update amount of memory used
+        curr_size += chunk_size;
+        peak_size = std::max(peak_size, curr_size);
 
-            // figure out number of chunks
-            const std::size_t chunk_count = total_size / chunk_size;
+        // return the retrieved address as a void pointer
+        return (void*)free_pos;
+    }
 
-            // create linked list with all free positions
-            for (std::size_t i = 0; i < chunk_count; i++) {
+    // free
+    void free(void* pointer)
+    {
+        // drop the current used size
+        curr_size -= chunk_size;
 
-                // determine address for start of chunk
-                std::size_t addr = (std::size_t) ((std::size_t) start_ptr + (i * chunk_size));
+        // push pointer onto freelist
+        free_list.push_front((std::size_t)pointer);
+    }
 
-                // push onto free list
-                free_list.push_front(addr);
-            }
-        }
+    // simple getters for internal data
+    // get total size
+    std::size_t get_total_size()
+    {
+        return total_size;
+    }
 
-        // allocate
-        void* alloc(const std::size_t size) {
-            
-            // if size is not correct, return NULL
-            // on the caller to check that they actually got good memory back
-            if (size != chunk_size) {
-                return NULL;
-            }
+    // get chunk size
+    std::size_t get_chunk_size()
+    {
+        return chunk_size;
+    }
 
-            // get next free position from free list
-            // then remove it from free list
-            std::size_t free_pos = free_list.front();
-            free_list.pop_front();
+    // get peak size
+    std::size_t get_peak_size()
+    {
+        return peak_size;
+    }
 
-            // update amount of memory used
-            curr_size += chunk_size;
-            peak_size = std::max(peak_size, curr_size);
-
-            // return the retrieved address as a void pointer
-            return (void*) free_pos;
-        }
-
-        // free
-        void free(void* pointer) {
-            
-            // drop the current used size
-            curr_size -= chunk_size;
-
-            // push pointer onto freelist
-            free_list.push_front((std::size_t) pointer);
-        }
-
-        // simple getters for internal data
-        // get total size
-        std::size_t get_total_size() {
-            return total_size;
-        }
-
-        // get chunk size
-        std::size_t get_chunk_size() {
-            return chunk_size;
-        }
-
-        // get peak size
-        std::size_t get_peak_size() {
-            return peak_size;
-        }
-
-        // get current size
-        std::size_t get_curr_size() {
-            return curr_size;
-        }
+    // get current size
+    std::size_t get_curr_size()
+    {
+        return curr_size;
+    }
 };
 
 #endif

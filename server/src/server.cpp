@@ -2,16 +2,16 @@
 // defines and implements functionality for a NICU baby warmer C&C server
 
 // stdlib includes
+#include <chrono>
+#include <cstring>
 #include <iostream>
 #include <queue>
-#include <cstring>
 #include <string>
 #include <vector>
-#include <chrono>
 
 // custom includes
-#include "../include/pool.hpp"
 #include "../../shared/msg_util.hpp"
+#include "../include/pool.hpp"
 #include <zmqpp/zmqpp.hpp>
 
 // IO defines
@@ -29,8 +29,8 @@ const std::string ENDPOINT = "tcp://127.0.0.1:55555";
 
 // client struct
 // needs to be constant size for pool allocator to work right
-struct client {
-
+struct client
+{
     // client identifier
     char ident[17];
     // client's current temp
@@ -44,15 +44,18 @@ struct client {
     client() {}
 
     // constructor
-    client(double in_curr_temp, bool in_is_oob) :
-        curr_temp(in_curr_temp), is_oob(in_is_oob) {}
+    client(double in_curr_temp, bool in_is_oob)
+      : curr_temp(in_curr_temp)
+      , is_oob(in_is_oob)
+    {}
 
     // set identifier
     // returns true if successful, false if not
-    bool set_ident(const std::string id) {
-
+    bool set_ident(const std::string id)
+    {
         // check that id is correct length (16 chars)
-        if (id.length() != 16) {
+        if (id.length() != 16)
+        {
             return false;
         }
 
@@ -63,11 +66,12 @@ struct client {
 
     // update temps
     // put input temp at front of last temps and shift everything else
-    void update_temps(double new_temp) {
-
+    void update_temps(double new_temp)
+    {
         // add every element onto queue
         std::queue<double> holds;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++)
+        {
             holds.push(last_temps[i]);
         }
 
@@ -76,24 +80,24 @@ struct client {
         last_temps[0] = new_temp;
 
         // iterate through and put other temps back
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 10; i++)
+        {
             last_temps[i] = holds.front();
             holds.pop();
         }
     }
-
 };
 
 // main
-int main(void) {
-    
+int main(void)
+{
     COUT << "--------------------" << ENDL << "Server startup:" << ENDL;
 
     // initialize fixed pool of memory
     pool nicu_pool = pool((MAX_CLIENT_COUNT * sizeof(client)), sizeof(client));
     nicu_pool.init();
     COUT << "client pool initialization - complete" << ENDL;
-    
+
     // initialize var to keep track of how many clients are active
     int current_client_count = 0;
     // also a vector to hold on to actual memory positions
@@ -102,7 +106,7 @@ int main(void) {
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     // die
     bool die = false;
-    
+
     // initialize two payloads
     // one for us to reuse as sender, one for us to recompose messages into
     payload self = payload("COMM", "SERVER_WARMER_00", 0.0);
@@ -114,22 +118,22 @@ int main(void) {
     COUT << "zeromq context initialization - complete" << ENDL;
     // generate socket
     zmqpp::socket_type type = zmqpp::socket_type::reply;
-    zmqpp::socket socket (context, type);
+    zmqpp::socket socket(context, type);
     // bind to socket
-    socket.bind(ENDPOINT); // ENDPOINT defined in MAGIC up top
+    socket.bind(ENDPOINT);  // ENDPOINT defined in MAGIC up top
     COUT << "zeromq socket bound to endpoint - " << ENDPOINT << ENDL;
 
     // main active loop
     COUT << "entering main loop..." << ENDL << "--------------------" << ENDL;
-    while (!die) {
-
+    while (!die)
+    {
         // receive from socket we've bound to
         // this is a blocking op, so it'll wait here until something comes in
         zmqpp::message recv_msg;
         socket.receive(recv_msg, zmqpp::socket::normal);
         // put message contents into string
         std::string recv_str;
-        recv_msg >> recv_str; // contents of serialized payload from client
+        recv_msg >> recv_str;  // contents of serialized payload from client
 
         // once something has arrived, figure out what it is
         // aka stick it back into a payload struct
@@ -138,28 +142,31 @@ int main(void) {
         recvd.temperature = std::stod(recv_str.substr(20));
 
         // set die if told to kill by killer.cpp
-        if (recvd.type == "KILL" and recvd.identifier == "KILLER_KILLER_00") {
+        if (recvd.type == "KILL" and recvd.identifier == "KILLER_KILLER_00")
+        {
             die = true;
         }
 
         // figure out if that client has been seen before
         bool seen = false;
         client* curr_client;
-        for (size_t i = 0; i < clients.size(); i++) {
-            
+        for (size_t i = 0; i < clients.size(); i++)
+        {
             // get a pointer to the current struct in the pool
-            client* check = (client*) clients.at(i);
-            
+            client* check = (client*)clients.at(i);
+
             // check if it's been seen
-            if (strcmp(check->ident, recvd.identifier.c_str())) {
+            if (strcmp(check->ident, recvd.identifier.c_str()))
+            {
                 seen = true;
                 curr_client = check;
             }
         }
 
         // if not seen, make a new one and increment count
-        if (!seen) {
-            curr_client = (client*) nicu_pool.alloc(sizeof(client));
+        if (!seen)
+        {
+            curr_client = (client*)nicu_pool.alloc(sizeof(client));
             // add that to clients list
             clients.push_back(curr_client);
             current_client_count++;
@@ -168,12 +175,13 @@ int main(void) {
         curr_client->update_temps(recvd.temperature);
 
         // build proper payload based on client state
-        if (!die) {
-
+        if (!die)
+        {
             self.type = "COMM";
 
             // if temp oob
-            if ((curr_client->curr_temp < 97.9) || (curr_client->curr_temp > 100.4)) {
+            if ((curr_client->curr_temp < 97.9) || (curr_client->curr_temp > 100.4))
+            {
                 // respond with target
                 self.temperature = 99.15;
 
@@ -181,23 +189,26 @@ int main(void) {
                 curr_client->is_oob = true;
             }
             // if temp normal, respond with basic
-            else {
+            else
+            {
                 // respond with basic
                 self.temperature = 0;
 
                 // reset oob if previously oob
-                if (curr_client->is_oob) {
+                if (curr_client->is_oob)
+                {
                     curr_client->is_oob = false;
                 }
             }
         }
         // otherwise build a kill payload
-        else {
+        else
+        {
             self.type = "KILL";
-            nicu_pool.free((void *) curr_client);
+            nicu_pool.free((void*)curr_client);
             current_client_count--;
         }
-        
+
         // send out the correct response
         // build response
         zmqpp::message send_msg;
@@ -216,11 +227,13 @@ int main(void) {
 
         // if it's been more than a certain amount of time, kill the clients and exit
         std::chrono::steady_clock::time_point current = std::chrono::steady_clock::now();
-        if (std::chrono::duration_cast<std::chrono::seconds>(current - start).count() > ALIVE_TIME) {
+        if (std::chrono::duration_cast<std::chrono::seconds>(current - start).count() > ALIVE_TIME)
+        {
             die = true;
         }
         // if current_client_count == 0 and die == true, break
-        if ((die == true) && (current_client_count == 0)) {
+        if ((die == true) && (current_client_count == 0))
+        {
             break;
         }
     }
