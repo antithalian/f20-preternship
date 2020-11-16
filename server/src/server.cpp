@@ -7,6 +7,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <chrono>
 
 // custom includes
 #include "../include/pool.hpp"
@@ -16,10 +17,13 @@
 // IO defines
 #define COUT std::cout
 #define ENDL std::endl
+#define CIN std::cin
 
 // MAGIC NUMBERS
 // maximum number of clients allowed
 #define MAX_CLIENT_COUNT 50
+// time for server to be alive - in seconds
+#define ALIVE_TIME 120
 // endpoint for zmq comms
 const std::string ENDPOINT = "tcp://127.0.0.1:55555";
 
@@ -94,6 +98,8 @@ int main(void) {
     int current_client_count = 0;
     // also a vector to hold on to actual memory positions
     std::vector<client*> clients;
+    // hold start time
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     // die
     bool die = false;
     
@@ -203,8 +209,9 @@ int main(void) {
         COUT << "Response content     : " << self.temperature << ENDL;
         COUT << "---------------------|" << ENDL;
 
-        // check if user sent the quit message
-        if (false) {
+        // if it's been more than a certain amount of time, kill the clients and exit
+        std::chrono::steady_clock::time_point current = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::seconds>(current - start).count() > ALIVE_TIME) {
             die = true;
         }
         // if current_client_count == 0 and die == true, break
@@ -218,7 +225,7 @@ int main(void) {
     socket.close();
     context.terminate();
     // let the user know we're done
-    COUT << "--------------------" << ENDL << "zeromq context destruction complete - exiting" << ENDL;
+    COUT << ENDL << "zeromq context destruction complete - exiting" << ENDL;
     return 0;
 }
 
