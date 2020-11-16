@@ -1,4 +1,8 @@
+# ignore system/app stuff
 .vscode/
 .DS_Store
 *.dSYM
 *.plist
+# exclude executables
+server/exe/*
+dummy-device/exe/*
