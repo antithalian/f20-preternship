@@ -23,7 +23,7 @@
 // maximum number of clients allowed
 #define MAX_CLIENT_COUNT 50
 // time for server to be alive - in seconds
-#define ALIVE_TIME 120
+#define ALIVE_TIME 300
 // endpoint for zmq comms
 const std::string ENDPOINT = "tcp://127.0.0.1:55555";
 

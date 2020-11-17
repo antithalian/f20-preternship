@@ -20,6 +20,12 @@ def main():
         print('Usage: dummy_launcher.py opt_num')
         exit(1)
 
+    # notes based on server/client code for writing the configuration below
+    # default ampl should be 1.2 - account for fp errors
+    # shif should be a random small value to move things around
+    # serial should be a serial number
+    # oob_gen should be a low chance random (or just set to be a few?)
+
     conf = {
         1 : [
             ['./dummy-device/exe/dummy', '01', '1.2', '0', 'false'],
@@ -68,15 +74,9 @@ def main():
     for proc in procs:
         proc.wait()
 
-    print('All devices terminated. Exiting...')
     # end execution, no error
     exit(0)
 
 # we only want to run if we're main, so:
 if __name__ == '__main__':
     main()
-
-# default ampl should be 1.2 - account for fp errors
-# shif should be a random small value to move things around
-# serial should be a serial number
-# oob_gen should be a low chance random (or just set to be a few?)
